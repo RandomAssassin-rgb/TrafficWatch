@@ -92,8 +92,8 @@ Return ONLY this JSON (no markdown, no extra text):
           "X-Title": "TrafficWatch AI"
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          max_tokens: 800,
+          model: "google/gemini-2.5-flash:free",
+          max_tokens: 1500,
           response_format: { type: "json_object" },
           messages: [
             {
