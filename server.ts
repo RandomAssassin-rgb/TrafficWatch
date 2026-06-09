@@ -21,65 +21,59 @@ async function startServer() {
       // Read OpenRouter API key from environment variable
       const OPENROUTER_KEY = process.env.OPENROUTER_KEY || process.env.GEMINI_API_KEY;
 
-      const prompt = `You are TrafficWatch AI. Analyze this traffic image and return ONLY a valid JSON object with this exact structure. Be fast and precise.
+      const prompt = `You are TrafficWatch AI. Analyze this traffic image and return ONLY a valid JSON object. Be EXTREMELY concise to save tokens (use short phrases, 1 sentence max for narrative).
 
-RULES:
-- Never hallucinate a vehicle number plate. If unclear, use null.
-- Only report violations clearly visible in the image.
-- Use confidence scores (0.0 to 1.0) for all assessments.
-- Be conservative — do not invent violations.
-
-Return ONLY this JSON (no markdown, no extra text):
+Return ONLY this JSON:
 {
   "analysis_status": "completed",
   "vehicle_detection": {
-    "vehicle_type": "Car|Motorcycle|Truck|Bus|Van|Auto Rickshaw|Bicycle|Other",
-    "vehicle_color": "color description",
+    "vehicle_type": "Car|Motorcycle|Truck|Bus|Other",
+    "vehicle_color": "color",
     "position": "front|rear|side",
     "confidence_score": 0.95
   },
   "number_plate_ocr": {
-    "plate_number": "plate text or null if not visible",
-    "region_state_hint": "state/region if detectable or null",
+    "plate_number": "text or null",
+    "region_state_hint": "state or null",
     "confidence_score": 0.90
   },
   "vehicle_classification": {
-    "type": "vehicle type",
-    "make": "brand if identifiable or Unknown",
+    "type": "type",
+    "make": "brand or Unknown",
     "color": "color",
-    "year_estimate": "year range or Unknown"
+    "year_estimate": "year or Unknown"
   },
   "violation_detection": {
-    "violation_type": "name of primary violation or No Violation Detected",
-    "severity": "Low|Medium|High|Critical",
+    "violation_type": "violation name",
+    "severity": "Low|Medium|High",
     "confidence_score": 0.85,
-    "evidence_description": "one sentence describing the visible evidence of the violation"
+    "evidence_description": "1 short sentence"
   },
   "authenticity_check": {
-    "classification": "Authentic|Suspicious|Likely Manipulated",
+    "classification": "Authentic|Suspicious",
     "confidence": 0.95,
-    "risk_level": "Low|Medium|High",
-    "reasons": ["reason 1", "reason 2"]
+    "risk_level": "Low|High",
+    "reasons": ["short reason"]
   },
   "investigation_report": {
-    "incident_summary": "brief incident summary",
-    "vehicle_details": "vehicle description",
-    "violation_details": "violation details",
-    "evidence_assessment": "evidence quality assessment",
-    "recommended_action": "suggested enforcement action",
-    "generated_narrative": "One professional paragraph describing the incident in formal enforcement language.",
-    "executive_summary": "two sentence executive summary"
+    "incident_summary": "1 short sentence",
+    "vehicle_details": "short phrase",
+    "violation_details": "short phrase",
+    "evidence_assessment": "short phrase",
+    "recommended_action": "short phrase",
+    "generated_narrative": "1 short sentence.",
+    "executive_summary": "1 short sentence"
   },
   "financials": {
     "recommended_fine_amount_usd": 150,
-    "fine_reasoning": "why this amount",
+    "fine_reasoning": "short phrase",
     "citizen_reward_points": 75,
-    "reward_reasoning": "why these points"
+    "reward_reasoning": "short phrase"
   },
   "traffic_intelligence": {
-    "hotspots": ["location type if identifiable"],
-    "patterns": ["observed pattern"],
-    "recommendations": ["enforcement recommendation"]
+    "hotspots": ["hotspot"],
+    "patterns": ["pattern"],
+    "recommendations": ["short recommendation"]
   }
 }`;
 
@@ -88,12 +82,12 @@ Return ONLY this JSON (no markdown, no extra text):
         headers: {
           "Authorization": `Bearer ${OPENROUTER_KEY}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "http://localhost:3001", 
+          "HTTP-Referer": process.env.APP_URL || "https://trafficwatch.app",
           "X-Title": "TrafficWatch AI"
         },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
-          max_tokens: 800,
+          max_tokens: 940,
           response_format: { type: "json_object" },
           messages: [
             {
