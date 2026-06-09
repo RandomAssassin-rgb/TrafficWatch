@@ -32,35 +32,41 @@ export default function Upload() {
     try {
       const reader = new FileReader();
       reader.onloadend = async () => {
-        const base64data = reader.result as string;
-        const base64String = base64data.split(',')[1];
-        
-        const response = await fetch('/api/analyze-evidence', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            imageBase64: base64String,
-            mimeType: selectedFile.type
-          })
-        });
+        try {
+          const base64data = reader.result as string;
+          const base64String = base64data.split(',')[1];
+          
+          const response = await fetch('/api/analyze-evidence', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              imageBase64: base64String,
+              mimeType: selectedFile.type
+            })
+          });
 
-        if (!response.ok) {
-          throw new Error('Failed to analyze evidence');
+          if (!response.ok) {
+            throw new Error('Failed to analyze evidence');
+          }
+
+          const data = await response.json();
+          
+          // Save to localStorage as a pending report
+          const stored = saveReport({
+            previewUrl: base64data,
+            status: 'pending',
+            reportData: data
+          });
+
+          // Navigate to Reports/Admin page with the data, preview, and stored ID
+          navigate('/admin', { state: { report: data, previewUrl: base64data, id: stored.id } });
+        } catch (innerError) {
+          console.error(innerError);
+          alert('Error analyzing evidence. See console.');
+          setIsProcessing(false);
         }
-
-        const data = await response.json();
-        
-        // Save to localStorage as a pending report
-        const stored = saveReport({
-          previewUrl: base64data,
-          status: 'pending',
-          reportData: data
-        });
-
-        // Navigate to Reports/Admin page with the data, preview, and stored ID
-        navigate('/admin', { state: { report: data, previewUrl: base64data, id: stored.id } });
       };
       reader.readAsDataURL(selectedFile);
     } catch (error) {
