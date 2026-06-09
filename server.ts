@@ -93,7 +93,7 @@ Return ONLY this JSON (no markdown, no extra text):
         },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
-          max_tokens: 1000,
+          max_tokens: 800,
           response_format: { type: "json_object" },
           messages: [
             {
