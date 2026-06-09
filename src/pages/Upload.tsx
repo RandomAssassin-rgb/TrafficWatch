@@ -48,7 +48,8 @@ export default function Upload() {
           });
 
           if (!response.ok) {
-            throw new Error('Failed to analyze evidence');
+            const errText = await response.text();
+            throw new Error(`Server Error (${response.status}): ${errText}`);
           }
 
           const data = await response.json();
@@ -62,9 +63,9 @@ export default function Upload() {
 
           // Navigate to Reports/Admin page with the data, preview, and stored ID
           navigate('/admin', { state: { report: data, previewUrl: base64data, id: stored.id } });
-        } catch (innerError) {
-          console.error(innerError);
-          alert('Error analyzing evidence. See console.');
+        } catch (innerError: any) {
+          console.error("Evidence Analysis Error:", innerError);
+          alert(`Error analyzing evidence:\n\n${innerError.message}`);
           setIsProcessing(false);
         }
       };
