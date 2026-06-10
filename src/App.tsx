@@ -7,11 +7,13 @@ import Reports from './pages/Reports';
 import Rewards from './pages/Rewards';
 import AdminReview from './pages/AdminReview';
 import Analytics from './pages/Analytics';
+import LiveCamera from './pages/LiveCamera';
 
 const navItems = [
   { name: 'Dashboard', path: '/dashboard', emoji: '🏠' },
   { name: 'Upload Evidence', path: '/upload', emoji: '📤' },
   { name: 'Review Queue', path: '/admin', emoji: '🔍' },
+  { name: 'Live Camera', path: '/live', emoji: '🎥' },
   { name: 'Analytics', path: '/analytics', emoji: '📊' },
   { name: 'My Reports', path: '/reports', emoji: '📄' },
   { name: 'Rewards', path: '/rewards', emoji: '🏆' },
@@ -112,6 +114,7 @@ export default function App() {
           <Route path="/reports" element={<Reports />} />
           <Route path="/rewards" element={<Rewards />} />
           <Route path="/admin" element={<AdminReview />} />
+          <Route path="/live" element={<LiveCamera />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

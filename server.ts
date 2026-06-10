@@ -18,10 +18,19 @@ async function startServer() {
         return res.status(400).json({ error: "No image provided" });
       }
 
-      // Read OpenRouter API key from environment variable
-      const OPENROUTER_KEY = process.env.OPENROUTER_KEY || process.env.GEMINI_API_KEY;
+      // Read Groq API key from environment variable
+      const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-      const prompt = `You are TrafficWatch AI. Analyze this traffic image and return ONLY a valid JSON object. Be EXTREMELY concise to save tokens (use short phrases, 1 sentence max for narrative).
+      if (!GROQ_API_KEY) {
+        throw new Error("GROQ_API_KEY is not set in environment variables");
+      }
+
+      const prompt = `You are TrafficWatch AI. Analyze this traffic image in REAL-TIME and return ONLY a valid JSON object. Look extremely closely at the image to detect any traffic violations. Specifically check for:
+- No Helmet (riders without helmets)
+- Triple Riding (more than 2 people on a two-wheeler)
+- Other visible violations
+
+Be EXTREMELY concise to save tokens (use short phrases, 1 sentence max for narrative).
 
 Return ONLY this JSON:
 {
@@ -77,16 +86,14 @@ Return ONLY this JSON:
   }
 }`;
 
-      const openRouterResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${OPENROUTER_KEY}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": process.env.APP_URL || "https://trafficwatch.app",
-          "X-Title": "TrafficWatch AI"
+          "Authorization": `Bearer ${GROQ_API_KEY}`,
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: "meta-llama/llama-4-scout-17b-16e-instruct",
           max_tokens: 940,
           response_format: { type: "json_object" },
           messages: [
@@ -106,16 +113,16 @@ Return ONLY this JSON:
         })
       });
 
-      if (!openRouterResponse.ok) {
-        const errText = await openRouterResponse.text();
-        throw new Error(`OpenRouter API Error: ${openRouterResponse.status} ${errText}`);
+      if (!groqResponse.ok) {
+        const errText = await groqResponse.text();
+        throw new Error(`Groq API Error: ${groqResponse.status} ${errText}`);
       }
 
-      const data = await openRouterResponse.json();
+      const data = await groqResponse.json();
       const textResponse = data.choices?.[0]?.message?.content;
 
       if (!textResponse) {
-        throw new Error("Empty response from OpenRouter");
+        throw new Error("Empty response from Groq");
       }
 
       let cleanJson = textResponse.trim();

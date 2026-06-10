@@ -97,6 +97,14 @@ export default function AdminReview() {
           <div className="relative flex-1 bg-slate-900 flex items-center justify-center p-4 overflow-hidden">
             <img src={previewUrl || "https://dummyimage.com/1200x800/111/444&text=NO+SIGNAL"} alt="Reported Evidence" className="max-w-full max-h-full object-contain" />
             
+            {/* Violation Overlay on Image */}
+            {report.violation_detection?.violation_type && report.violation_detection.violation_type !== 'None' && (
+              <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-red-600/90 text-white px-6 py-3 rounded-lg border-2 border-red-400 shadow-2xl backdrop-blur-sm z-20 flex flex-col items-center animate-in slide-in-from-top-4">
+                 <span className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-1">Detected Violation</span>
+                 <span className="text-2xl font-black uppercase tracking-wider">{report.violation_detection.violation_type}</span>
+              </div>
+            )}
+
             {/* Bounding boxes */}
             {report.vehicle_detection?.bounding_box_suggestions?.map((box: any, i: number) => (
                <div key={i} className="absolute border-2 border-blue-500 bg-blue-500/10 flex items-center justify-center rounded-sm" style={{
@@ -154,10 +162,10 @@ export default function AdminReview() {
                   
                   <div className="flex items-center gap-2">
                     <div className="bg-white text-red-700 px-2.5 py-1 rounded-md text-xs font-bold border border-red-200 shadow-sm">
-                      Severity: {report.violation_detection?.severity}
+                      Severity: {report.violation_detection?.severity || 'Unknown'}
                     </div>
                     <div className="bg-white text-blue-700 px-2.5 py-1 rounded-md text-xs font-bold border border-blue-200 shadow-sm">
-                      AI CONFIDENCE: {(report.violation_detection?.confidence_score * 100).toFixed(1)}%
+                      AI CONFIDENCE: {report.violation_detection?.confidence_score ? (report.violation_detection.confidence_score * 100).toFixed(1) + '%' : 'N/A'}
                     </div>
                   </div>
                 </div>
